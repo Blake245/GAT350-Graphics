@@ -10,6 +10,13 @@ public:
 
 	void ClearFrame();
 	void PresentFrame();
+	
+	void CopyFrameBuffer(const class Framebuffer& framebuffer);
+
+	void operator= (const class Framebuffer& framebuffer);
+
+	friend Framebuffer;
+
 private:
 	SDL_Renderer* m_renderer{ nullptr };
 	SDL_Window* window{ nullptr };

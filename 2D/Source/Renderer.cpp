@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Framebuffer.h"
 #include <iostream>
 
 bool Renderer::Initialize()
@@ -30,8 +31,6 @@ bool Renderer::CreateWindow(std::string title, int width, int height)
     return true;
 }
 
-
-
 void Renderer::ClearFrame()
 {
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 0);
@@ -41,4 +40,14 @@ void Renderer::ClearFrame()
 void Renderer::PresentFrame()
 {
     SDL_RenderPresent(m_renderer);
+}
+
+void Renderer::CopyFrameBuffer(const Framebuffer& framebuffer)
+{
+    SDL_RenderCopy(m_renderer, framebuffer.m_texture, NULL, NULL);
+}
+
+void Renderer::operator=(const Framebuffer& framebuffer)
+{
+    SDL_RenderCopy(m_renderer, framebuffer.m_texture, NULL, NULL);
 }
