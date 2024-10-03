@@ -31,13 +31,13 @@ bool Renderer::CreateWindow(std::string title, int width, int height)
     return true;
 }
 
-void Renderer::ClearFrame()
+void Renderer::StartFrame()
 {
     SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 0);
     SDL_RenderClear(m_renderer);
 }
 
-void Renderer::PresentFrame()
+void Renderer::EndFrame()
 {
     SDL_RenderPresent(m_renderer);
 }
