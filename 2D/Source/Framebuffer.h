@@ -18,13 +18,16 @@ public:
 	void DrawRect(int x, int y, int w, int h, const color_t& color);
 	void DrawLineSlope(int x1, int y1, int x2, int y2, const color_t& color);
 	void DrawLine(int x1, int y1, int x2, int y2, const color_t& color);
-	void DrawTriangel(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
-	void DrawCircle();
+	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
+	void DrawCircle(int xc, int yc, int radius, const color_t& color);
+
+	void LineClip(int x1, int x2, int y1, int y2);
 
 	friend Renderer;
 
 private:
-	void DrawQuaderent();
+	int SetRegionCode(int x, int y);
+	void DrawQuaderent(int xc, int yc, int x, int y, const color_t& color);
 
 public:
 	int m_width{ 0 };

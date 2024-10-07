@@ -48,6 +48,7 @@ void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
 	int y1 = std::max(y, 0);
 	int y2 = std::min(y + h, m_height);
 
+	LineClip(x1, x2, y1, y2);
 
 	for (int sy = y1; sy < y2; sy++)
 	{
@@ -144,10 +145,167 @@ void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
 	}
 }
 
-void Framebuffer::DrawTriangel(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color)
+void Framebuffer::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color)
 {
 	DrawLine(x1, y1, x2, y2, color);
 	DrawLine(x2, y2, x3, y3, color);
 	DrawLine(x3, y3, x1, y1, color);
 
+}
+
+void Framebuffer::DrawCircle(int xc, int yc, int radius, const color_t& color)
+{
+	 //Bresenham's algorithm
+	int x = 0;
+	int y = radius;
+	int d = 3 - 2 * radius;
+	DrawQuaderent(xc, yc, x, y, color);
+	 //check for decision parameter and update d, y
+	while (y >= x)
+	{
+		if (d > 0)
+		{
+			y--;
+			d = d + 4 * (x - y) + 10;
+		}
+		else
+		{
+			d = d + 4 * x + 6;
+		}
+			//Increment x after updating decision parameter
+			x++;
+
+			//Draw the circle with new coordinates
+			DrawQuaderent(xc, yc, x, y, color);
+			
+	}
+}
+
+const int X_MIN = 0;
+const int X_MAX = 800;
+const int Y_MIN = 0;
+const int Y_MAX = 800;
+
+enum Region {
+	INSIDE = 0,
+	LEFT = 1,
+	RIGHT = 2,
+	BOTTOM = 4,
+	TOP = 8
+};
+
+int Framebuffer::SetRegionCode(int x, int y)
+{
+	// Set region code
+	int RegionCode = INSIDE;
+
+	if (x < X_MIN)
+	{
+		RegionCode = LEFT;
+	}
+	else if (x > X_MAX)
+	{
+		RegionCode = RIGHT;
+	}
+	if (y < Y_MIN)
+	{
+		RegionCode = BOTTOM;
+	}
+	else if (y > Y_MAX)
+	{
+		RegionCode = TOP;
+	}
+
+	return RegionCode;
+}
+
+void Framebuffer::LineClip(int x1, int x2, int y1, int y2)
+{
+	int region1 = SetRegionCode(x1, y1);
+	int region2 = SetRegionCode(x2, y2);
+
+	while (true)
+	{
+		if ((region1 == INSIDE) && (region2 == INSIDE))
+		{
+			// both points in window
+			break;
+		}
+		else if ((region1 && region2))
+		{
+			// both points outside window
+			break;
+		}
+		else
+		{
+			// one point outside window
+			int x;
+			int y;
+			int regionOut;
+			if (region1 != INSIDE)
+			{
+				regionOut = region1;
+			}
+			else 
+			{
+				regionOut = region2;
+			}
+
+			if (regionOut & TOP)
+			{
+				x = x1 + (x2 - x1) * (Y_MAX - y1) / (y2 - y1);
+				y = Y_MAX;
+			}
+			else if (regionOut & BOTTOM) 
+			{
+				x = x1 + (x2 - x1) * (Y_MIN - y1) / (y2 - y1);
+				y = Y_MIN;
+			}
+			else if (regionOut & RIGHT) 
+			{
+				y = y1 + (y2 - y1) * (X_MAX - x1) / (x2 - x1);
+				x = X_MAX;
+			}
+			else if (regionOut & LEFT) 
+			{
+				y = y1 + (y2 - y1) * (X_MIN - x1) / (x2 - x1);
+				x = X_MIN;
+			}
+
+			if (regionOut == region1)
+			{
+				x1 = x;
+				y1 = y;
+				region1 = SetRegionCode(x1, y1);
+			}
+			else
+			{
+				x2 = x;
+				y2 = y;
+				region2 = SetRegionCode(x2, y2);
+			}
+		}
+	}
+
+	//if (accept) {
+	//	// If accepted, print the clipped line coordinates
+	//	std::cout << "Line accepted from " << x1 << ", "
+	//		<< y1 << " to " << x2 << ", " << y2 << std::endl;
+	//}
+	//else {
+	//	std::cout << "Line is outside the clipping window\n";
+	//}
+}
+
+
+void Framebuffer::DrawQuaderent(int xc, int yc, int x, int y, const color_t& color)
+{
+	DrawPoint(xc + x, yc + y, color);
+	DrawPoint(xc - x, yc + y, color);
+	DrawPoint(xc + x, yc - y, color);
+	DrawPoint(xc - x, yc - y, color);
+	DrawPoint(xc + y, yc + x, color);
+	DrawPoint(xc - y, yc + x, color);
+	DrawPoint(xc + y, yc - x, color);
+	DrawPoint(xc - y, yc - x, color);
 }

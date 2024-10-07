@@ -56,9 +56,13 @@ int main(int argc, char* argv[])
         int x3 = rand() % framebuffer.m_width;
         int y3 = rand() % framebuffer.m_height;
 
-        framebuffer.DrawRect(400, 300, 150, 100, { 47, 204, 178, 255});
+        framebuffer.DrawRect(300, 300, 100, 100, { 47, 204, 178, 255});
 
-        //framebuffer.DrawTriangel(x, y, x2, y2, x3, y3, { 47, 204, 178, 255 });
+        framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
+
+        framebuffer.DrawLine(100, 450, 600, 500, { 65, 207, 9, 255 });
+
+        framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });
 
         framebuffer.Update();
 
