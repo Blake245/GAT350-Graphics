@@ -1,5 +1,6 @@
 #include "Framebuffer.h"
 #include "Renderer.h"
+#include "MathUtils.h"
 #include <iostream>
 
 Framebuffer::Framebuffer(const Renderer& renderer, int width, int height)
@@ -48,7 +49,7 @@ void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
 	int y1 = std::max(y, 0);
 	int y2 = std::min(y + h, m_height);
 
-	LineClip(x1, x2, y1, y2);
+	//LineClip(x1, x2, y1, y2);
 
 	for (int sy = y1; sy < y2; sy++)
 	{
@@ -159,7 +160,7 @@ void Framebuffer::DrawCircle(int xc, int yc, int radius, const color_t& color)
 	int x = 0;
 	int y = radius;
 	int d = 3 - 2 * radius;
-	DrawQuaderent(xc, yc, x, y, color);
+	DrawOctants(xc, yc, x, y, color);
 	 //check for decision parameter and update d, y
 	while (y >= x)
 	{
@@ -176,15 +177,22 @@ void Framebuffer::DrawCircle(int xc, int yc, int radius, const color_t& color)
 			x++;
 
 			//Draw the circle with new coordinates
-			DrawQuaderent(xc, yc, x, y, color);
+			DrawOctants(xc, yc, x, y, color);
 			
 	}
 }
 
-const int X_MIN = 0;
-const int X_MAX = 800;
-const int Y_MIN = 0;
-const int Y_MAX = 800;
+void Framebuffer::DrawOctants(int xc, int yc, int x, int y, const color_t& color)
+{
+	DrawPoint(xc + x, yc + y, color);
+	DrawPoint(xc - x, yc + y, color);
+	DrawPoint(xc + x, yc - y, color);
+	DrawPoint(xc - x, yc - y, color);
+	DrawPoint(xc + y, yc + x, color);
+	DrawPoint(xc - y, yc + x, color);
+	DrawPoint(xc + y, yc - x, color);
+	DrawPoint(xc - y, yc - x, color);
+}
 
 enum Region {
 	INSIDE = 0,
@@ -219,7 +227,7 @@ int Framebuffer::SetRegionCode(int x, int y)
 	return RegionCode;
 }
 
-void Framebuffer::LineClip(int x1, int x2, int y1, int y2)
+void Framebuffer::LineClip(int& x1, int& x2, int& y1, int& y2)
 {
 	int region1 = SetRegionCode(x1, y1);
 	int region2 = SetRegionCode(x2, y2);
@@ -286,26 +294,67 @@ void Framebuffer::LineClip(int x1, int x2, int y1, int y2)
 			}
 		}
 	}
-
-	//if (accept) {
-	//	// If accepted, print the clipped line coordinates
-	//	std::cout << "Line accepted from " << x1 << ", "
-	//		<< y1 << " to " << x2 << ", " << y2 << std::endl;
-	//}
-	//else {
-	//	std::cout << "Line is outside the clipping window\n";
-	//}
 }
 
-
-void Framebuffer::DrawQuaderent(int xc, int yc, int x, int y, const color_t& color)
+void Framebuffer::DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color)
 {
-	DrawPoint(xc + x, yc + y, color);
-	DrawPoint(xc - x, yc + y, color);
-	DrawPoint(xc + x, yc - y, color);
-	DrawPoint(xc - x, yc - y, color);
-	DrawPoint(xc + y, yc + x, color);
-	DrawPoint(xc - y, yc + x, color);
-	DrawPoint(xc + y, yc - x, color);
-	DrawPoint(xc - y, yc - x, color);
+	float dt = 1.0f / 10;
+	float t1 = 0;
+	for(int i = 0; i < 10; i++)
+	{ 
+		int sx1 = Lerp(x1, x2, t1);
+		int sy1 = Lerp(y1, y2, t1);
+
+		float t2 = t1 + dt;
+
+		int sx2 = Lerp(x1, x2, t2);
+		int sy2 = Lerp(y1, y2, t2);
+
+		t1 += dt;
+
+		DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+
+
 }
+
+void Framebuffer::DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color)
+{
+	float dt = 1.0f / 100;
+	float t1 = 0;
+	for (int i = 0; i < 100; i++)
+	{
+		int sx1, sy1;
+		QuadraticPoint(x1, y1, x2, y2, x3, y3, t1, sx1, sy1);
+		float t2 = t1 + dt;
+
+		int sx2, sy2;
+		QuadraticPoint(x1, y1, x2, y2, x3, y3, t2, sx2, sy2);
+
+		t1 += dt;
+
+		DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+}
+
+void Framebuffer::DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, const color_t& color)
+{
+	float dt = 1.0f / 100;
+	float t1 = 0;
+	for (int i = 0; i < 100; i++)
+	{
+		int sx1, sy1;
+		CubicPoint(x1, y1, x2, y2, x3, y3, x4, y4, t1, sx1, sy1);
+		
+		float t2 = t1 + dt;
+		int sx2, sy2;
+		CubicPoint(x1, y1, x2, y2, x3, y3, x4, y4, t2, sx2, sy2);
+
+		t1 += dt;
+
+		DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+}
+
+
+
