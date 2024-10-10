@@ -77,6 +77,20 @@ int main(int argc, char* argv[])
         //PostProcess::Invert(framebuffer.m_buffer);
         //PostProcess::MonoChome(framebuffer.m_buffer);
         //PostProcess::Brightness(framebuffer.m_buffer, 100);
+        //PostProcess::ColorBalance(framebuffer.m_buffer, 150, -50, -50);
+        //PostProcess::Noise(framebuffer.m_buffer, 80);
+        //PostProcess::Threshold(framebuffer.m_buffer, 75);
+        PostProcess::Posterize(framebuffer.m_buffer, 4);
+
+
+        for (int i = 0; i < 5; i++)
+        {
+            //PostProcess::BoxBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+            //PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+            
+        }
+        //PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+        //PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
 
         framebuffer.Update();
 
