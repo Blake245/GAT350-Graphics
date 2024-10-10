@@ -1,10 +1,16 @@
 #pragma once
 
 template<typename T>
-inline int Lerp(T a, T b, float t)
+inline int Lerp(const T& a, const T& b, float t)
 {
 	// lerp = Po + t(P1 - Po)
 	return static_cast<T>(a + ((b - a) * t));
+}
+
+template<typename T>
+inline T Clamp(const T& value, const T& min, const T& max)
+{
+	return (value < min) ? min : (value > max) ? max : value;
 }
 
 inline void QuadraticPoint(int x1, int y1, int x2, int y2, int x3, int y3, float t, int& x, int& y)

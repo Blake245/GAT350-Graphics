@@ -1,6 +1,7 @@
 #include "Framebuffer.h"
 #include "Renderer.h"
 #include "MathUtils.h"
+#include "Image.h"
 #include <iostream>
 
 Framebuffer::Framebuffer(const Renderer& renderer, int width, int height)
@@ -42,7 +43,7 @@ void Framebuffer::DrawPoint(int x, int y, const color_t& color)
 
 void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
 {
-	//if (x + w < 0 || x >= m_width || y + h < 0 || y >= m_height) return;
+	if (x + w < 0 || x >= m_width || y + h < 0 || y >= m_height) return;
 
 	int x1 = std::max(x, 0);
 	int x2 = std::min(x + w, m_width);
@@ -353,6 +354,37 @@ void Framebuffer::DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3,
 		t1 += dt;
 
 		DrawLine(sx1, sy1, sx2, sy2, color);
+	}
+}
+
+void Framebuffer::DrawImage(int x, int y, const Image& image)
+{
+	// check if off-screen
+	if (x + image.m_width < 0 || x >= m_width || y + image.m_height < 0 || y >= m_height) return;
+
+	// iterate through image y
+	for (int iy = 0; iy < image.m_height; iy++)
+	{
+		// set screen y 
+		int sy = y + iy;
+		// check if off-screen, don't draw if off-screen
+		if (sy < 0 || sy >= m_height) continue;
+
+		// iterate through image x
+		for (int ix = 0; ix < image.m_width; ix++)
+		{
+			// set screen x
+			int sx = x + ix;
+			// check if off-screen, don't draw if off-screen
+			if (sx < 0 || sx >= m_width) continue;
+
+			// get image pixel color
+			color_t color = image.m_buffer[ix + (iy * image.m_width)];
+			// check alpha, if 0 don't draw
+			if (color.a == 0) continue;
+			// set buffer to color
+			m_buffer[sx + (sy * m_width)] = color;
+		}
 	}
 }
 

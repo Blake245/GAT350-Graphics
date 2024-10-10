@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include "Framebuffer.h"
 #include "MathUtils.h"
+#include "Image.h"
+#include "PostProcess.h"
 #include <SDL.h>
 #include <iostream>
 
@@ -11,6 +13,12 @@ int main(int argc, char* argv[])
     renderer.CreateWindow("2D", 800, 600);
 
     Framebuffer framebuffer(renderer, 800, 600);
+
+    Image image;
+    image.Load("../Build/Images/scenic.jpeg");
+
+    Image image2;
+    image2.Load("../Build/Images/pixel.jpeg");
 
     bool quit = false;
 
@@ -34,29 +42,6 @@ int main(int argc, char* argv[])
 
         framebuffer.Clear(color_t{ 0, 0, 0, 255 });
 
-
-        for (int i = 0; i < 0; i++)
-        {
-            int x = rand() % framebuffer.m_width;
-            int y = rand() % framebuffer.m_height;
-            int x2 = rand() % framebuffer.m_width;
-            int y2 = rand() % framebuffer.m_height;
-
-            uint8_t r = rand() % 255;
-            uint8_t g = rand() % 255;
-            uint8_t b = rand() % 255;
-
-            //framebuffer.DrawPoint(x, y, color_t{ 255, 0, 255, 255 });
-            //framebuffer.DrawLine(x, y, x2, y2, { 255, 0, 255, 255 });
-            //framebuffer.DrawLine(x, y, x2, y2, color_t{ r, g, b, 255 });
-        }
-        /*int x = rand() % framebuffer.m_width;
-        int y = rand() % framebuffer.m_height;
-        int x2 = rand() % framebuffer.m_width;
-        int y2 = rand() % framebuffer.m_height;
-        int x3 = rand() % framebuffer.m_width;
-        int y3 = rand() % framebuffer.m_height;*/
-
         //framebuffer.DrawRect(300, 300, 100, 100, { 47, 204, 178, 255});
 
         //framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
@@ -65,21 +50,33 @@ int main(int argc, char* argv[])
 
         //framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });
 
+        framebuffer.DrawImage(175, 50, image);
+
+        framebuffer.DrawImage(100, 350, image2);
+
         int mx, my;
         SDL_GetMouseState(&mx, &my);
 
-        //framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
+        ////framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
 
-        framebuffer.DrawQuadraticCurve(100, 200, mx, my, 300, 200, { 0, 0, 255, 255 });
+        //framebuffer.DrawQuadraticCurve(100, 200, mx, my, 300, 200, { 0, 0, 255, 255 });
 
-        framebuffer.DrawCubicCurve(300, 400, 300, 100, mx, my, 600, 400, { 255, 0, 0, 255 });
+        //framebuffer.DrawCubicCurve(300, 400, 300, 100, mx, my, 600, 400, { 255, 0, 0, 255 });
 
-        int ticks = SDL_GetTicks();
-        float time = ticks * 0.001f;
-        float t = std::abs(std::sin(time));
-        int x, y;
-        CubicPoint(300, 400, 300, 100, mx, my, 600, 400, t, x, y);
-        framebuffer.DrawRect(x, y, 40, 40, { 47, 204, 178, 255 });
+        //int ticks = SDL_GetTicks();
+        //float time = ticks * 0.001f;
+        //float t = std::abs(std::sin(time));
+        //int x, y;
+        //CubicPoint(300, 400, 300, 100, mx, my, 600, 400, t, x, y);
+        //framebuffer.DrawRect(x, y, 40, 40, { 47, 204, 178, 255 });
+        //framebuffer.DrawCircle(x, y, 40, { 255, 204, 178, 255 });
+
+
+
+        //post process
+        //PostProcess::Invert(framebuffer.m_buffer);
+        //PostProcess::MonoChome(framebuffer.m_buffer);
+        //PostProcess::Brightness(framebuffer.m_buffer, 100);
 
         framebuffer.Update();
 
