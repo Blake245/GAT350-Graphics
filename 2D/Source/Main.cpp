@@ -15,10 +15,14 @@ int main(int argc, char* argv[])
     Framebuffer framebuffer(renderer, 800, 600);
 
     Image image;
-    image.Load("../Build/Images/scenic.jpeg");
+    image.Load("../Build/Images/test.png");
 
     Image image2;
     image2.Load("../Build/Images/pixel.jpeg");
+
+    Image imageAlpha;
+    imageAlpha.Load("../Build/Images/colors.png");
+    PostProcess::Alpha(imageAlpha.m_buffer, 158);
 
     bool quit = false;
 
@@ -41,6 +45,7 @@ int main(int argc, char* argv[])
         //renderer.StartFrame();
 
         framebuffer.Clear(color_t{ 0, 0, 0, 255 });
+#pragma region shapes
 
         //framebuffer.DrawRect(300, 300, 100, 100, { 47, 204, 178, 255});
 
@@ -49,14 +54,20 @@ int main(int argc, char* argv[])
         //framebuffer.DrawLine(100, 450, 600, 500, { 65, 207, 9, 255 });
 
         //framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });
-
-        framebuffer.DrawImage(175, 50, image);
-
-        framebuffer.DrawImage(100, 350, image2);
+#pragma endregion
 
         int mx, my;
         SDL_GetMouseState(&mx, &my);
 
+        SetBlendMode(BlendMode::Normal);
+        framebuffer.DrawImage(200, 50, image);
+
+        framebuffer.DrawImage(100, 350, image2);
+        //SetBlendMode(BlendMode::Alpha);
+        //framebuffer.DrawImage(mx, my, imageAlpha);
+
+
+#pragma region Curves
         ////framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
 
         //framebuffer.DrawQuadraticCurve(100, 200, mx, my, 300, 200, { 0, 0, 255, 255 });
@@ -71,26 +82,34 @@ int main(int argc, char* argv[])
         //framebuffer.DrawRect(x, y, 40, 40, { 47, 204, 178, 255 });
         //framebuffer.DrawCircle(x, y, 40, { 255, 204, 178, 255 });
 
+#pragma endregion
 
 
+
+#pragma region post_process
         //post process
         //PostProcess::Invert(framebuffer.m_buffer);
         //PostProcess::MonoChome(framebuffer.m_buffer);
-        //PostProcess::Brightness(framebuffer.m_buffer, 100);
+        //PostProcess::Brightness(framebuffer.m_buffer, 40);
         //PostProcess::ColorBalance(framebuffer.m_buffer, 150, -50, -50);
         //PostProcess::Noise(framebuffer.m_buffer, 80);
         //PostProcess::Threshold(framebuffer.m_buffer, 75);
-        PostProcess::Posterize(framebuffer.m_buffer, 4);
+        //PostProcess::Posterize(framebuffer.m_buffer, 6);
 
-
-        for (int i = 0; i < 5; i++)
-        {
-            //PostProcess::BoxBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-            //PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-            
-        }
+        //for (int i = 0; i < 5; i++)
+        //{
+        //    //PostProcess::BoxBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+        //    PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+        //    
+        //}
         //PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        //PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
+        PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
+        //PostProcess::Emboss(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
+        //PostProcess::MonoChome(framebuffer.m_buffer);
+#pragma endregion
+
+
+
 
         framebuffer.Update();
 
