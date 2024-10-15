@@ -5,6 +5,8 @@
 #include "PostProcess.h"
 #include <SDL.h>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 int main(int argc, char* argv[])
 {
@@ -23,6 +25,9 @@ int main(int argc, char* argv[])
     Image imageAlpha;
     imageAlpha.Load("../Build/Images/colors.png");
     PostProcess::Alpha(imageAlpha.m_buffer, 158);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    
 
     bool quit = false;
 
@@ -59,13 +64,13 @@ int main(int argc, char* argv[])
         int mx, my;
         SDL_GetMouseState(&mx, &my);
 
-        SetBlendMode(BlendMode::Normal);
+        /*SetBlendMode(BlendMode::Normal);
         framebuffer.DrawImage(200, 50, image);
 
-        framebuffer.DrawImage(100, 350, image2);
+        framebuffer.DrawImage(100, 350, image2);*/
         //SetBlendMode(BlendMode::Alpha);
         //framebuffer.DrawImage(mx, my, imageAlpha);
-
+        model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
 
 #pragma region Curves
         ////framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
@@ -103,7 +108,7 @@ int main(int argc, char* argv[])
         //    
         //}
         //PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
+        //PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
         //PostProcess::Emboss(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
         //PostProcess::MonoChome(framebuffer.m_buffer);
 #pragma endregion
