@@ -3,6 +3,8 @@
 #include "MathUtils.h"
 #include "Image.h"
 #include "PostProcess.h"
+#include "Model.h"
+
 #include <SDL.h>
 #include <iostream>
 #include <glm/glm.hpp>
@@ -26,8 +28,11 @@ int main(int argc, char* argv[])
     imageAlpha.Load("../Build/Images/colors.png");
     PostProcess::Alpha(imageAlpha.m_buffer, 158);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    
+    SetBlendMode(BlendMode::Normal);
+
+
+    vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, 0, 0} };
+    Model model(vertices, { 0, 255, 0, 255 });
 
     bool quit = false;
 
@@ -48,29 +53,48 @@ int main(int argc, char* argv[])
 
         // clear screen
         //renderer.StartFrame();
-
+        
+        // --- Start Frame ---
         framebuffer.Clear(color_t{ 0, 0, 0, 255 });
+
 #pragma region shapes
 
-        //framebuffer.DrawRect(300, 300, 100, 100, { 47, 204, 178, 255});
+        SetBlendMode(BlendMode::Normal);
+        framebuffer.DrawImage(100, 50, image);
 
-        //framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
+        framebuffer.DrawRect(200, 100, 100, 100, { 47, 204, 178, 255});
 
-        //framebuffer.DrawLine(100, 450, 600, 500, { 65, 207, 9, 255 });
+        SetBlendMode(BlendMode::Alpha);
+        framebuffer.DrawRect(500, 100, 150, 100, { 47, 204, 178, 100});
 
-        //framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });
+        SetBlendMode(BlendMode::Additive);
+        framebuffer.DrawRect(200, 300, 150, 100, { 47, 204, 178, 100});
+
+        SetBlendMode(BlendMode::Multiply);
+        framebuffer.DrawRect(500, 300, 100, 100, { 47, 204, 178, 100});
+
+        /*framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
+
+        framebuffer.DrawLine(100, 450, 600, 500, { 65, 207, 9, 255 });
+
+        framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });*/
 #pragma endregion
 
-        int mx, my;
-        SDL_GetMouseState(&mx, &my);
+#pragma region AlphaBlend
 
-        /*SetBlendMode(BlendMode::Normal);
-        framebuffer.DrawImage(200, 50, image);
+        //int mx, my;
+        //SDL_GetMouseState(&mx, &my);
 
-        framebuffer.DrawImage(100, 350, image2);*/
+        ///*SetBlendMode(BlendMode::Normal);
+        //framebuffer.DrawImage(200, 50, image);*/
+
+        ////framebuffer.DrawImage(100, 350, image2);
+
         //SetBlendMode(BlendMode::Alpha);
-        //framebuffer.DrawImage(mx, my, imageAlpha);
-        model = glm::translate(model, glm::vec3(1.0f, 0.0f, 0.0f));
+        //framebuffer.DrawImage(mx - (imageAlpha.m_width / 2), my - (imageAlpha.m_height / 2), imageAlpha);
+#pragma endregion
+
+        
 
 #pragma region Curves
         ////framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
@@ -113,7 +137,20 @@ int main(int argc, char* argv[])
         //PostProcess::MonoChome(framebuffer.m_buffer);
 #pragma endregion
 
+#pragma region Matrix
+        /*int ticks = SDL_GetTicks(); 
+        float time = ticks * 0.001f;
 
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::mat4 translate = glm::translate(modelMatrix, glm::vec3(350.0f, 240.0f, 0.0f));
+        glm::mat4 scale = glm::scale(modelMatrix, glm::vec3(10));
+        glm::mat4 rotate = glm::rotate(modelMatrix, glm::radians(time * 180.0f), glm::vec3{1, 1, 0});
+
+        modelMatrix = translate * scale * rotate;
+
+        model.Draw(framebuffer, modelMatrix);*/
+
+#pragma endregion
 
 
         framebuffer.Update();
@@ -121,7 +158,7 @@ int main(int argc, char* argv[])
         renderer = framebuffer;
 
 
-        // show screen
+        // --- End Frame ---
         renderer.EndFrame();
     }
 

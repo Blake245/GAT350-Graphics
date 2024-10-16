@@ -63,7 +63,8 @@ void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
 	{
 		for (int sx = x1; sx < x2; sx++)
 		{
-			m_buffer[sx + (sy * m_width)] = color;
+			//m_buffer[sx + (sy * m_width)] = color;
+			DrawPoint(sx, sy, color);
 		}
 	}
 }
