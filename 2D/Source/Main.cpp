@@ -4,6 +4,9 @@
 #include "Image.h"
 #include "PostProcess.h"
 #include "Model.h"
+#include "Transform.h"
+#include "ETime.h"
+#include "Input.h"
 
 #include <SDL.h>
 #include <iostream>
@@ -12,11 +15,16 @@
 
 int main(int argc, char* argv[])
 {
+    // initialize
+    Time time;
+    Input input;
+    input.Initialize();
+
     Renderer renderer;
     renderer.Initialize();
-    renderer.CreateWindow("2D", 800, 600);
+    renderer.CreateWindow("Matrix Stuff", 1000, 800);
 
-    Framebuffer framebuffer(renderer, 800, 600);
+    Framebuffer framebuffer(renderer, 1000, 800);
 
     Image image;
     image.Load("../Build/Images/test.png");
@@ -31,13 +39,24 @@ int main(int argc, char* argv[])
     SetBlendMode(BlendMode::Normal);
 
 
-    vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, 0, 0} };
-    Model model(vertices, { 0, 255, 0, 255 });
+    vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, -5, 0} };
+    //Model model(vertices, { 0, 255, 0, 255 });
+    Transform transform{ {400, 340, 0}, glm::vec3{ 0, 45, 180 }, glm::vec3{ 75 } };
 
+    Model model;
+    model.Load("../Build/Model/teapot.obj");
+
+    Model sword;
+    sword.Load("../Build/Model/sword.obj");
+    Transform swordT { {200, 400, 0}, glm::vec3{ 60, 55, 45 }, glm::vec3{ 14 } };
+    
     bool quit = false;
 
     while (!quit)
     {
+        time.Tick();
+        input.Update();
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -59,10 +78,10 @@ int main(int argc, char* argv[])
 
 #pragma region shapes
 
-        SetBlendMode(BlendMode::Normal);
+        /*SetBlendMode(BlendMode::Normal);
         framebuffer.DrawImage(100, 50, image);
 
-        framebuffer.DrawRect(200, 100, 100, 100, { 47, 204, 178, 255});
+        framebuffer.DrawRect(200, 100, 100, 100, { 47, 204, 178, 100});
 
         SetBlendMode(BlendMode::Alpha);
         framebuffer.DrawRect(500, 100, 150, 100, { 47, 204, 178, 100});
@@ -71,7 +90,7 @@ int main(int argc, char* argv[])
         framebuffer.DrawRect(200, 300, 150, 100, { 47, 204, 178, 100});
 
         SetBlendMode(BlendMode::Multiply);
-        framebuffer.DrawRect(500, 300, 100, 100, { 47, 204, 178, 100});
+        framebuffer.DrawRect(500, 300, 100, 100, { 47, 204, 178, 100});*/
 
         /*framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
 
@@ -138,20 +157,26 @@ int main(int argc, char* argv[])
 #pragma endregion
 
 #pragma region Matrix
-        /*int ticks = SDL_GetTicks(); 
-        float time = ticks * 0.001f;
+        
+        glm::vec3 direction{ 0 };
+        if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
+        if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
+        if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = -1;
+        if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = 1;
+        if (input.GetKeyDown(SDL_SCANCODE_W)) direction.z = 1;
+        if (input.GetKeyDown(SDL_SCANCODE_S)) direction.z = -1;
 
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::mat4 translate = glm::translate(modelMatrix, glm::vec3(350.0f, 240.0f, 0.0f));
-        glm::mat4 scale = glm::scale(modelMatrix, glm::vec3(10));
-        glm::mat4 rotate = glm::rotate(modelMatrix, glm::radians(time * 180.0f), glm::vec3{1, 1, 0});
+        transform.position += direction * 700.0f * time.GetDeltaTime();
+        //transform.rotation.z += 180 * time.GetDeltaTime();
+        transform.rotation.z += direction.z;
 
-        modelMatrix = translate * scale * rotate;
+        model.SetColor({ 0, 255, 0, 255 });
+        model.Draw(framebuffer, transform.GetMatrix());
 
-        model.Draw(framebuffer, modelMatrix);*/
+        sword.SetColor({ 255, 0, 0, 255 });
+        sword.Draw(framebuffer, swordT.GetMatrix());
 
 #pragma endregion
-
 
         framebuffer.Update();
 
