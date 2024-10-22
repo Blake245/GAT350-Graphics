@@ -30,16 +30,6 @@ int main(int argc, char* argv[])
 
     Framebuffer framebuffer(renderer, 1000, 800);
 
-    Image image;
-    image.Load("../Build/Images/test.png");
-
-    Image image2;
-    image2.Load("../Build/Images/pixel.jpeg");
-
-    Image imageAlpha;
-    imageAlpha.Load("../Build/Images/colors.png");
-    PostProcess::Alpha(imageAlpha.m_buffer, 158);
-
     SetBlendMode(BlendMode::Normal);
 
     Camera camera(1000, 800);
@@ -47,14 +37,10 @@ int main(int argc, char* argv[])
     camera.SetProjecton(1, 1, 1, 1);
     Transform cameraTransform{ {0, 0, -20 } };
 
-    //vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, -5, 0} };
-    //Model model(vertices, { 0, 255, 0, 255 });
-
     std::shared_ptr<Model> model = std::make_shared<Model>();
     model->Load("../Build/Model/cube.obj");
     model->SetColor({ 0, 255, 0, 255 });
-    
-    //std::vector<std::unique_ptr<Actor>> actors;
+   
 
     std::vector<std::unique_ptr<Actor>> actors;
     for (int i = 0; i < 20; i++)
