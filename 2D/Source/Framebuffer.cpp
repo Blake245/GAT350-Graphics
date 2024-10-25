@@ -113,6 +113,8 @@ void Framebuffer::DrawLineSlope(int x1, int y1, int x2, int y2, const color_t& c
 
 void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
 {
+	if (!LineClip(x1, x2, y1, y2)) return;
+
 	// calculate deltas
 	int dx = x2 - x1; 
 	int dy = y2 - y1;  
@@ -145,7 +147,7 @@ void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
 	{
 		//LineClip(x1, x2, y1, y2);
 		// error here
-		(steep) ? DrawPointClip(y, x, color) : DrawPointClip(x, y, color);
+		(steep) ? DrawPoint(y, x, color) : DrawPoint(x, y, color);
 
 		// update error term
 		error -= dy;
@@ -205,106 +207,106 @@ void Framebuffer::DrawOctants(int xc, int yc, int x, int y, const color_t& color
 	DrawPoint(xc - y, yc - x, color);
 }
 
-enum Region {
-	INSIDE = 0,
-	LEFT = 1,
-	RIGHT = 2,
-	BOTTOM = 4,
-	TOP = 8
-};
+//enum Region {
+//};
+	const int INSIDE = 0; // 0000
+	const int LEFT = 1; // 0001
+	const int RIGHT = 2; // 0010
+	const int BOTTOM = 4; // 0100
+	const int TOP = 8; // 1000
 
 int Framebuffer::SetRegionCode(int x, int y)
 {
-	// Set region code
-	int RegionCode = INSIDE;
+	int code = INSIDE;
 
-	if (x < X_MIN)
-	{
-		RegionCode = LEFT;
-	}
-	else if (x > X_MAX)
-	{
-		RegionCode = RIGHT;
-	}
-	if (y < Y_MIN)
-	{
-		RegionCode = BOTTOM;
-	}
-	else if (y > Y_MAX)
-	{
-		RegionCode = TOP;
-	}
+	if (x < 0)                code |= LEFT;
+	else if (x >= m_width)    code |= RIGHT;
+	if (y < 0)                code |= BOTTOM;
+	else if (y >= m_height)   code |= TOP;
 
-	return RegionCode;
+	return code;
 }
 
-void Framebuffer::LineClip(int& x1, int& x2, int& y1, int& y2)
+bool Framebuffer::LineClip(int& x1, int& x2, int& y1, int& y2)
 {
-	int region1 = SetRegionCode(x1, y1);
-	int region2 = SetRegionCode(x2, y2);
+	// Compute region codes for P1, P2
+	int code1 = SetRegionCode(x1, y1);
+	int code2 = SetRegionCode(x2, y2);
+
+	bool accept = false;
 
 	while (true)
 	{
-		if ((region1 == INSIDE) && (region2 == INSIDE))
+		if ((code1 == 0) && (code2 == 0))
 		{
-			// both points in window
+			// Both endpoints lie inside the rectangle
+			accept = true;
 			break;
 		}
-		else if ((region1 && region2))
+		else if (code1 & code2)
 		{
-			// both points outside window
+			// Both endpoints are outside the rectangle in the same region
 			break;
 		}
 		else
 		{
-			// one point outside window
-			int x;
-			int y;
-			int regionOut;
-			if (region1 != INSIDE)
+			// Some segment of the line lies within the rectangle
+			int code_out;
+			int x = 0, y = 0;
+
+			// At least one endpoint is outside the rectangle, pick it
+			if (code1 != 0)
+				code_out = code1;
+			else
+				code_out = code2;
+
+			// Find intersection point using formulas:
+			// y = y1 + slope * (x - x1)
+			// x = x1 + (1 / slope) * (y - y1)
+			if (code_out & TOP)
 			{
-				regionOut = region1;
+				// Point is above the rectangle
+
+				x = x1 + (x2 - x1) * (m_width - y1) / (y2 - y1);
+				y = m_height - 1;
 			}
-			else 
+			else if (code_out & BOTTOM)
 			{
-				regionOut = region2;
+				// Point is below the rectangle
+				x = x1 + (x2 - x1) * (0 - y1) / (y2 - y1);
+				y = 0;
+			}
+			else if (code_out & RIGHT)
+			{
+				// Point is to the right of rectangle
+				y = y1 + (y2 - y1) * (m_width - x1) / (x2 - x1);
+				x = m_width - 1;
+			}
+			else if (code_out & LEFT)
+			{
+				// Point is to the left of rectangle
+				y = y1 + (y2 - y1) * (0 - x1) / (x2 - x1);
+				x = 0;
 			}
 
-			if (regionOut & TOP)
-			{
-				x = x1 + (x2 - x1) * (Y_MAX - y1) / (y2 - y1);
-				y = Y_MAX;
-			}
-			else if (regionOut & BOTTOM) 
-			{
-				x = x1 + (x2 - x1) * (Y_MIN - y1) / (y2 - y1);
-				y = Y_MIN;
-			}
-			else if (regionOut & RIGHT) 
-			{
-				y = y1 + (y2 - y1) * (X_MAX - x1) / (x2 - x1);
-				x = X_MAX;
-			}
-			else if (regionOut & LEFT) 
-			{
-				y = y1 + (y2 - y1) * (X_MIN - x1) / (x2 - x1);
-				x = X_MIN;
-			}
-
-			if (regionOut == region1)
+			// Replace the outside point with the intersection point
+			// and get the new region code
+			if (code_out == code1)
 			{
 				x1 = x;
 				y1 = y;
-				region1 = SetRegionCode(x1, y1);
+				code1 = SetRegionCode(x1, y1);
 			}
 			else
 			{
 				x2 = x;
 				y2 = y;
-				region2 = SetRegionCode(x2, y2);
+				code2 = SetRegionCode(x2, y2);
 			}
 		}
 	}
+
+	return accept;
 }
 
 void Framebuffer::DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color)

@@ -18,12 +18,15 @@
 
 int main(int argc, char* argv[])
 {
-    // initialiaze
+    // --- initialiaze ---
+
+    // Time and Input
     Time time;
     Input input;
     input.Initialize();
     input.Update();
 
+    // Renderer and Framebuffer
     Renderer renderer;
     renderer.Initialize();
     renderer.CreateWindow("Software Renderer", 1000, 800);
@@ -31,49 +34,36 @@ int main(int argc, char* argv[])
     Framebuffer framebuffer(renderer, 1000, 800);
 
     Image image;
-    image.Load("../Build/Images/test.png");
-
-    Image image2;
-    image2.Load("../Build/Images/pixel.jpeg");
-
-    Image imageAlpha;
-    imageAlpha.Load("../Build/Images/colors.png");
-    PostProcess::Alpha(imageAlpha.m_buffer, 158);
+    image.Load("../Build/Images/pixelArtPic.jpg");
+    //PostProcess::Alpha(imageAlpha.m_buffer, 158);
 
     SetBlendMode(BlendMode::Normal);
 
+    // Camera
     Camera camera(1000, 800);
-    camera.SetView(glm::vec3{ 0, 0, -73 }, glm::vec3{ 0, 0, 0 });
+    camera.SetView(glm::vec3{ 0, 0, -20 }, glm::vec3{ 0, 0, 0 });
     camera.SetProjecton(45.0f, 1000.0f / 800.0f, 0.1f, 1000.0f);
     Transform cameraTransform{ {0, 0, 0 }, {0, 180, 0 } };
 
-    //vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, -5, 0} };
-    //Model model(vertices, { 0, 255, 0, 255 });
-
+    // Model
     std::shared_ptr<Model> model = std::make_shared<Model>();
-    model->Load("../Build/Model/sphere.obj");
+    model->Load("../Build/Model/cube.obj");
     model->SetColor({ 255, 255, 255, 255 });
     
-    //std::vector<std::unique_ptr<Actor>> actors;
-
+    // Actors
     std::vector<std::unique_ptr<Actor>> actors;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 1; i++)
     {
-        Transform transform{ {randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{ 0, 0, 0 }, glm::vec3{ randomf(1.0f, 2.0f) }};
+        //Transform transform{ {randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{ 0, 0, 0 }, glm::vec3{ randomf(1.0f, 20.0f) }};
+        Transform transform{ {0, 0, 0}, glm::vec3{ 0, 0, 0 }, glm::vec3{1}};
         std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
         actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
         actors.push_back(std::move(actor));
-
-        std::cout << transform.position.x << transform.position.y << transform.position.z <<std::endl;
     }
-
-    /*Model sword;
-    sword.Load("../Build/Model/sword.obj");
-    Transform swordT { {200, 400, 0}, glm::vec3{ 60, 55, 45 }, glm::vec3{ 14 } };*/
     
     bool quit = false;
-    //int timer = 5000;
 
+    // --- Update ---
     while (!quit)
     {
         time.Tick();
@@ -97,6 +87,8 @@ int main(int argc, char* argv[])
         
         // --- Start Frame ---
         framebuffer.Clear(color_t{ 0, 0, 0, 255 });
+
+        //framebuffer.DrawImage(0, 0, image);
 
 #pragma region shapes
 
@@ -178,7 +170,7 @@ int main(int argc, char* argv[])
         //PostProcess::MonoChome(framebuffer.m_buffer);
 #pragma endregion
 
-#pragma region Matrix
+#pragma region CameraMovement
 
         if (input.GetMouseButtonDown(2))
         {
@@ -199,8 +191,7 @@ int main(int argc, char* argv[])
 
             glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
 
-            cameraTransform.position += offset * 70.0f * time.GetDeltaTime();
-            std::cout << std::endl;
+            cameraTransform.position += offset * 20.0f * time.GetDeltaTime();
         }
         else
         {
@@ -209,23 +200,10 @@ int main(int argc, char* argv[])
 
         camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
 
-
-
-        //transform.position += direction * 700.0f * time.GetDeltaTime();
-        ////transform.rotation.z += 180 * time.GetDeltaTime();
-        //transform.rotation.z += direction.z;
-        //transform.rotation.y += rotation.y;
-
-        //model.SetColor({ 0, 255, 0, 255 });
-        //model->Draw(framebuffer, transform.GetMatrix());
-
         for (auto& actor : actors)
         {
             actor->Draw(framebuffer, camera);
         }
-
-        /*sword.SetColor({ 255, 0, 0, 255 });
-        sword.Draw(framebuffer, swordT.GetMatrix(), camera);*/
 
 #pragma endregion
 
@@ -233,7 +211,6 @@ int main(int argc, char* argv[])
 
         renderer = framebuffer;
 
-       // timer -= time.GetDeltaTime() * 1000;
         // --- End Frame ---
         renderer.EndFrame();
     }

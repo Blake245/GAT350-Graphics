@@ -8,7 +8,7 @@
 
 void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const Camera& camera)
 {
-	for (int i = 0; i < m_vertices.size(); i += 3)
+	for (int i = 0; i + 2 < m_vertices.size(); i += 3)
 	{
 		vertex_t p1 = model * glm::vec4{ m_vertices[i],	  1 };
 		vertex_t p2 = model * glm::vec4{ m_vertices[i + 1], 1 };

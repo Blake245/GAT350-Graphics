@@ -23,7 +23,7 @@ public:
 	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
 	void DrawCircle(int xc, int yc, int radius, const color_t& color);
 
-	void LineClip(int& x1, int& x2, int& y1, int& y2);
+	bool LineClip(int& x1, int& x2, int& y1, int& y2);
 
 	void DrawLinearCurve(int x1, int y1, int x2, int y2, const color_t& color);
 	void DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color);
