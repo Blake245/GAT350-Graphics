@@ -8,7 +8,7 @@
 
 void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const Camera& camera)
 {
-	for (int i = 0; i + 2 < m_vertices.size(); i += 3)
+	for (int i = 0; i < m_vertices.size(); i += 3)
 	{
 		vertex_t p1 = model * glm::vec4{ m_vertices[i],	  1 };
 		vertex_t p2 = model * glm::vec4{ m_vertices[i + 1], 1 };
@@ -16,7 +16,7 @@ void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const Camera&
 
 		p1 = camera.ModelToView(p1);
 		p2 = camera.ModelToView(p2);
-		p2 = camera.ModelToView(p2);
+		p3 = camera.ModelToView(p3);
 
 		glm::ivec2 s1 = camera.ViewToScreen(p1);
 		glm::ivec2 s2 = camera.ViewToScreen(p2);
@@ -27,7 +27,7 @@ void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const Camera&
 			continue;
 		}
 
-		framebuffer.DrawTriangle((int)p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, m_color);
+		framebuffer.DrawTriangle((int)s1.x, s1.y, s2.x, s2.y, s3.x, s3.y, m_color);
 	}
 }
 

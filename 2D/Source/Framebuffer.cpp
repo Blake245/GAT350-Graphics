@@ -143,6 +143,8 @@ void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
 	// draw line points
 	for (int x = x1, y = y1; x <= x2; x++)
 	{
+		//LineClip(x1, x2, y1, y2);
+		// error here
 		(steep) ? DrawPointClip(y, x, color) : DrawPointClip(x, y, color);
 
 		// update error term

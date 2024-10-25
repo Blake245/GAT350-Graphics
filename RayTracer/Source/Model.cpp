@@ -8,27 +8,7 @@
 
 void Model::Draw(Framebuffer& framebuffer, const glm::mat4& model, const Camera& camera)
 {
-	for (int i = 0; i + 2 < m_vertices.size(); i += 3)
-	{
-		vertex_t p1 = model * glm::vec4{ m_vertices[i],	  1 };
-		vertex_t p2 = model * glm::vec4{ m_vertices[i + 1], 1 };
-		vertex_t p3 = model * glm::vec4{ m_vertices[i + 2], 1 };
-
-		p1 = camera.ModelToView(p1);
-		p2 = camera.ModelToView(p2);
-		p2 = camera.ModelToView(p2);
-
-		glm::ivec2 s1 = camera.ViewToScreen(p1);
-		glm::ivec2 s2 = camera.ViewToScreen(p2);
-		glm::ivec2 s3 = camera.ViewToScreen(p3);
-
-		if (s1.x == -1 || s1.y == -1 || s2.x == -1 || s2.y == -1 || s3.x == -1 || s3.y == -1)
-		{
-			continue;
-		}
-
-		framebuffer.DrawTriangle((int)p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, m_color);
-	}
+	//
 }
 
 bool Model::Load(const std::string& filename)

@@ -1,9 +1,11 @@
 #include "Input.h"
 #include <SDL.h>
+#include <iostream>
 
 bool Input::Initialize()
 {
 	int numKeys;
+
 	const uint8_t* keyboardState = SDL_GetKeyboardState(&numKeys);
 
 	m_keyboardState.resize(numKeys);
@@ -12,14 +14,6 @@ bool Input::Initialize()
 	std::copy(keyboardState, keyboardState + numKeys, m_keyboardState.begin());
 
 	m_prevKeyboardState = m_keyboardState;
-
-	// set initial mouse position and previous mouse position
-
-
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	m_mousePosition.x = (float)x;
-	m_mousePosition.y = (float)y;
 
 	return true;
 }
@@ -57,6 +51,8 @@ void Input::Update()
 	m_mouseButtonState[0] = buttonState & SDL_BUTTON_LMASK; 
 	m_mouseButtonState[1] = buttonState & SDL_BUTTON_MMASK; 
 	m_mouseButtonState[2] = buttonState & SDL_BUTTON_RMASK; 
+
+	//std::cout << "Left: " << (m_mouseButtonState[0] ? "Pressed" : "Released") << std::endl;
 }
 
 void Input::SetRelativeMode(bool relative)

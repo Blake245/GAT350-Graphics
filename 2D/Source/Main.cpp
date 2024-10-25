@@ -18,7 +18,7 @@
 
 int main(int argc, char* argv[])
 {
-    // initialize
+    // initialiaze
     Time time;
     Input input;
     input.Initialize();
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 
     Renderer renderer;
     renderer.Initialize();
-    renderer.CreateWindow("Matrix Stuff", 1000, 800);
+    renderer.CreateWindow("Software Renderer", 1000, 800);
 
     Framebuffer framebuffer(renderer, 1000, 800);
 
@@ -43,26 +43,28 @@ int main(int argc, char* argv[])
     SetBlendMode(BlendMode::Normal);
 
     Camera camera(1000, 800);
-    camera.SetView(glm::vec3{ 0 }, glm::vec3{ 0 }, glm::vec3{ -50 });
-    camera.SetProjecton(1, 1, 1, 1);
-    Transform cameraTransform{ {0, 0, -20 } };
+    camera.SetView(glm::vec3{ 0, 0, -73 }, glm::vec3{ 0, 0, 0 });
+    camera.SetProjecton(45.0f, 1000.0f / 800.0f, 0.1f, 1000.0f);
+    Transform cameraTransform{ {0, 0, 0 }, {0, 180, 0 } };
 
     //vertices_t vertices{ {-5, 5, 0}, {5, 5, 0}, {-5, -5, 0} };
     //Model model(vertices, { 0, 255, 0, 255 });
 
     std::shared_ptr<Model> model = std::make_shared<Model>();
-    model->Load("../Build/Model/cube.obj");
-    model->SetColor({ 0, 255, 0, 255 });
+    model->Load("../Build/Model/sphere.obj");
+    model->SetColor({ 255, 255, 255, 255 });
     
     //std::vector<std::unique_ptr<Actor>> actors;
 
     std::vector<std::unique_ptr<Actor>> actors;
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 3; i++)
     {
-        Transform transform{ { randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f) }, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) } };
+        Transform transform{ {randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f)}, glm::vec3{ 0, 0, 0 }, glm::vec3{ randomf(1.0f, 2.0f) }};
         std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
         actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
         actors.push_back(std::move(actor));
+
+        std::cout << transform.position.x << transform.position.y << transform.position.z <<std::endl;
     }
 
     /*Model sword;
@@ -70,6 +72,7 @@ int main(int argc, char* argv[])
     Transform swordT { {200, 400, 0}, glm::vec3{ 60, 55, 45 }, glm::vec3{ 14 } };*/
     
     bool quit = false;
+    //int timer = 5000;
 
     while (!quit)
     {
@@ -176,34 +179,35 @@ int main(int argc, char* argv[])
 #pragma endregion
 
 #pragma region Matrix
-        
+
         if (input.GetMouseButtonDown(2))
         {
             input.SetRelativeMode(true);
 
             glm::vec3 direction{ 0 };
-            glm::vec3 rotation{ 0 };
-            if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
-            if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = 1;
+            if (input.GetKeyDown(SDL_SCANCODE_D)) direction.x = 1;
+            if (input.GetKeyDown(SDL_SCANCODE_A)) direction.x = -1;
+
+            if (input.GetKeyDown(SDL_SCANCODE_E)) direction.y = 1;
+            if (input.GetKeyDown(SDL_SCANCODE_Q)) direction.y = -1;
 
             if (input.GetKeyDown(SDL_SCANCODE_W)) direction.z = 1;
             if (input.GetKeyDown(SDL_SCANCODE_S)) direction.z = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_A)) rotation.y = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_D)) rotation.y = 1;
 
-            cameraTransform.rotation.y += input.GetMouseRelative().x * 0.25;
-            cameraTransform.rotation.y += input.GetMouseRelative().y * 0.25;
+            cameraTransform.rotation.y += input.GetMouseRelative().x * 0.35f;
+            cameraTransform.rotation.x += input.GetMouseRelative().y * 0.35f;
+
             glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
-            cameraTransform.position += offset * 70.f * time.GetDeltaTime();
+
+            cameraTransform.position += offset * 70.0f * time.GetDeltaTime();
+            std::cout << std::endl;
         }
         else
         {
             input.SetRelativeMode(false);
         }
 
-        camera.SetView(cameraTransform.position, cameraTransform.position * cameraTransform.GetForward());
+        camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
 
 
 
@@ -212,8 +216,8 @@ int main(int argc, char* argv[])
         //transform.rotation.z += direction.z;
         //transform.rotation.y += rotation.y;
 
-        /*model.SetColor({ 0, 255, 0, 255 });
-        model.Draw(framebuffer, transform.GetMatrix());*/
+        //model.SetColor({ 0, 255, 0, 255 });
+        //model->Draw(framebuffer, transform.GetMatrix());
 
         for (auto& actor : actors)
         {
@@ -229,7 +233,7 @@ int main(int argc, char* argv[])
 
         renderer = framebuffer;
 
-
+       // timer -= time.GetDeltaTime() * 1000;
         // --- End Frame ---
         renderer.EndFrame();
     }

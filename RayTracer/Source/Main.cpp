@@ -10,6 +10,8 @@
 #include "Actor.h"
 #include "Random.h"
 #include "Camera.h"
+#include "Tracer.h"
+#include "Scene.h"
 
 #include <SDL.h>
 #include <iostream>
@@ -20,47 +22,30 @@ int main(int argc, char* argv[])
 {
     // initialize
     Time time;
-    Input input;
-    input.Initialize();
-    input.Update();
 
     Renderer renderer;
     renderer.Initialize();
-    renderer.CreateWindow("Matrix Stuff", 1000, 800);
-
-    Framebuffer framebuffer(renderer, 1000, 800);
+    renderer.CreateWindow("Ray Tracer", 800, 600);
 
     SetBlendMode(BlendMode::Normal);
 
-    Camera camera(1000, 800);
-    camera.SetView(glm::vec3{ 0 }, glm::vec3{ 0 }, glm::vec3{ -50 });
-    camera.SetProjecton(1, 1, 1, 1);
-    Transform cameraTransform{ {0, 0, -20 } };
+    Framebuffer framebuffer(renderer, 800, 600);
 
-    std::shared_ptr<Model> model = std::make_shared<Model>();
-    model->Load("../Build/Model/cube.obj");
-    model->SetColor({ 0, 255, 0, 255 });
-   
+    Camera camera{70.0f, framebuffer.m_width / (float)framebuffer.m_height};
+    camera.SetView({ 0, 0, -20 }, { 0,0,0 });
 
-    std::vector<std::unique_ptr<Actor>> actors;
-    for (int i = 0; i < 20; i++)
-    {
-        Transform transform{ { randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f), randomf(-10.0f, 10.0f) }, glm::vec3{0, 0, 0}, glm::vec3{ randomf(2, 20) } };
-        std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
-        actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
-        actors.push_back(std::move(actor));
-    }
+    Scene scene;
 
-    /*Model sword;
-    sword.Load("../Build/Model/sword.obj");
-    Transform swordT { {200, 400, 0}, glm::vec3{ 60, 55, 45 }, glm::vec3{ 14 } };*/
+    std::shared_ptr<Material> material = std::make_shared<Material>(color3_t{ 1, 0, 0 });
+    auto object = std::make_unique<Sphere>(glm::vec3{ 0, 0, -40 }, 2.0f, material);
+
+    scene.AddObject(std::move(object));
     
     bool quit = false;
 
     while (!quit)
     {
         time.Tick();
-        input.Update();
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -75,148 +60,16 @@ int main(int argc, char* argv[])
             }
         }
 
-        // clear screen
-        //renderer.StartFrame();
         
         // --- Start Frame ---
-        framebuffer.Clear(color_t{ 0, 0, 0, 255 });
+        framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
 
-#pragma region shapes
-
-        /*SetBlendMode(BlendMode::Normal);
-        framebuffer.DrawImage(100, 50, image);
-
-        framebuffer.DrawRect(200, 100, 100, 100, { 47, 204, 178, 100});
-
-        SetBlendMode(BlendMode::Alpha);
-        framebuffer.DrawRect(500, 100, 150, 100, { 47, 204, 178, 100});
-
-        SetBlendMode(BlendMode::Additive);
-        framebuffer.DrawRect(200, 300, 150, 100, { 47, 204, 178, 100});
-
-        SetBlendMode(BlendMode::Multiply);
-        framebuffer.DrawRect(500, 300, 100, 100, { 47, 204, 178, 100});*/
-
-        /*framebuffer.DrawTriangle(500, 250, 675, 50, 700, 350, { 47, 204, 178, 255 });
-
-        framebuffer.DrawLine(100, 450, 600, 500, { 65, 207, 9, 255 });
-
-        framebuffer.DrawCircle(200, 200, 100, { 200, 10, 255, 255 });*/
-#pragma endregion
-
-#pragma region AlphaBlend
-
-        //int mx, my;
-        //SDL_GetMouseState(&mx, &my);
-
-        ///*SetBlendMode(BlendMode::Normal);
-        //framebuffer.DrawImage(200, 50, image);*/
-
-        ////framebuffer.DrawImage(100, 350, image2);
-
-        //SetBlendMode(BlendMode::Alpha);
-        //framebuffer.DrawImage(mx - (imageAlpha.m_width / 2), my - (imageAlpha.m_height / 2), imageAlpha);
-#pragma endregion
-
-        
-
-#pragma region Curves
-        ////framebuffer.DrawLinearCurve(100, 100, 250, 200, { 0, 255, 0, 255 });
-
-        //framebuffer.DrawQuadraticCurve(100, 200, mx, my, 300, 200, { 0, 0, 255, 255 });
-
-        //framebuffer.DrawCubicCurve(300, 400, 300, 100, mx, my, 600, 400, { 255, 0, 0, 255 });
-
-        //int ticks = SDL_GetTicks();
-        //float time = ticks * 0.001f;
-        //float t = std::abs(std::sin(time));
-        //int x, y;
-        //CubicPoint(300, 400, 300, 100, mx, my, 600, 400, t, x, y);
-        //framebuffer.DrawRect(x, y, 40, 40, { 47, 204, 178, 255 });
-        //framebuffer.DrawCircle(x, y, 40, { 255, 204, 178, 255 });
-
-#pragma endregion
-
-
-
-#pragma region post_process
-        //post process
-        //PostProcess::Invert(framebuffer.m_buffer);
-        //PostProcess::MonoChome(framebuffer.m_buffer);
-        //PostProcess::Brightness(framebuffer.m_buffer, 40);
-        //PostProcess::ColorBalance(framebuffer.m_buffer, 150, -50, -50);
-        //PostProcess::Noise(framebuffer.m_buffer, 80);
-        //PostProcess::Threshold(framebuffer.m_buffer, 75);
-        //PostProcess::Posterize(framebuffer.m_buffer, 6);
-
-        //for (int i = 0; i < 5; i++)
-        //{
-        //    //PostProcess::BoxBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        //    PostProcess::GaussianBlur(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        //    
-        //}
-        //PostProcess::Sharpen(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        //PostProcess::Edge(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height, 10);
-        //PostProcess::Emboss(framebuffer.m_buffer, framebuffer.m_width, framebuffer.m_height);
-        //PostProcess::MonoChome(framebuffer.m_buffer);
-#pragma endregion
-
-#pragma region Matrix
-        
-        if (input.GetMouseButtonDown(2))
-        {
-            input.SetRelativeMode(true);
-
-            glm::vec3 direction{ 0 };
-            glm::vec3 rotation{ 0 };
-            if (input.GetKeyDown(SDL_SCANCODE_RIGHT)) direction.x = 1;
-            if (input.GetKeyDown(SDL_SCANCODE_LEFT)) direction.x = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_UP)) direction.y = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_DOWN)) direction.y = 1;
-
-            if (input.GetKeyDown(SDL_SCANCODE_W)) direction.z = 1;
-            if (input.GetKeyDown(SDL_SCANCODE_S)) direction.z = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_A)) rotation.y = -1;
-            if (input.GetKeyDown(SDL_SCANCODE_D)) rotation.y = 1;
-
-            cameraTransform.rotation.y += input.GetMouseRelative().x * 0.25;
-            cameraTransform.rotation.y += input.GetMouseRelative().y * 0.25;
-            glm::vec3 offset = cameraTransform.GetMatrix() * glm::vec4{ direction, 0 };
-            cameraTransform.position += offset * 70.f * time.GetDeltaTime();
-        }
-        else
-        {
-            input.SetRelativeMode(false);
-        }
-
-        camera.SetView(cameraTransform.position, cameraTransform.position * cameraTransform.GetForward());
-
-
-
-        //transform.position += direction * 700.0f * time.GetDeltaTime();
-        ////transform.rotation.z += 180 * time.GetDeltaTime();
-        //transform.rotation.z += direction.z;
-        //transform.rotation.y += rotation.y;
-
-        /*model.SetColor({ 0, 255, 0, 255 });
-        model.Draw(framebuffer, transform.GetMatrix());*/
-
-        for (auto& actor : actors)
-        {
-            actor->Draw(framebuffer, camera);
-        }
-
-        /*sword.SetColor({ 255, 0, 0, 255 });
-        sword.Draw(framebuffer, swordT.GetMatrix(), camera);*/
-
-#pragma endregion
+        scene.Render(framebuffer, camera);
 
         framebuffer.Update();
+        // --- End Frame ---
 
         renderer = framebuffer;
-
-
-        // --- End Frame ---
         renderer.EndFrame();
     }
 
