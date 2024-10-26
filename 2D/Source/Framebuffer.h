@@ -43,7 +43,7 @@ public:
 	int m_pitch{ 0 };
 
 	const int X_MIN = 0;
-	const int X_MAX = 800;
+	const int X_MAX = 1000;
 	const int Y_MIN = 0;
 	const int Y_MAX = 800;
 

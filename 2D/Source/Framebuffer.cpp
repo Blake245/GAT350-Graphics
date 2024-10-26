@@ -267,26 +267,30 @@ bool Framebuffer::LineClip(int& x1, int& x2, int& y1, int& y2)
 			{
 				// Point is above the rectangle
 
-				x = x1 + (x2 - x1) * (m_width - y1) / (y2 - y1);
+				x = x1 + (x2 - x1) * (m_height - y1) / (y2 - y1);
 				y = m_height - 1;
+				//std::cout << "Top" << std::endl;
 			}
 			else if (code_out & BOTTOM)
 			{
 				// Point is below the rectangle
 				x = x1 + (x2 - x1) * (0 - y1) / (y2 - y1);
 				y = 0;
+				//std::cout << "Bottom" << std::endl;
 			}
 			else if (code_out & RIGHT)
 			{
 				// Point is to the right of rectangle
 				y = y1 + (y2 - y1) * (m_width - x1) / (x2 - x1);
 				x = m_width - 1;
+				//std::cout << "right" << std::endl;
 			}
 			else if (code_out & LEFT)
 			{
 				// Point is to the left of rectangle
 				y = y1 + (y2 - y1) * (0 - x1) / (x2 - x1);
 				x = 0;
+				//std::cout << "left" << std::endl;
 			}
 
 			// Replace the outside point with the intersection point
