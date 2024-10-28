@@ -1,7 +1,7 @@
 #include "Sphere.h"
 #include "Ray.h"
 
-bool Sphere::Hit(const ray_t& ray)
+bool Sphere::Hit(const ray_t& ray, raycastHit_t& raycastHit, float minDistance, float maxDistance)
 {
     // Vector from the ray origin to the center of the sphere
     glm::vec3 oc = ray.origin - m_center;
@@ -23,5 +23,28 @@ bool Sphere::Hit(const ray_t& ray)
     // If discriminant > 0, two solutions (the ray hits the sphere twice)
     float discriminant = (b * b) - (4 * a * c);
 
-    return true;
+    if (discriminant >= 0)
+    {
+        float t = (-b - sqrt(discriminant)) / (2 * a);
+        if (t >= minDistance && t <= maxDistance)
+        {
+            raycastHit.distance = t;
+            raycastHit.point = ray.At(t);
+            raycastHit.normal = glm::normalize(raycastHit.point - m_center);
+            raycastHit.material = GetMaterial();
+            return true;
+        }
+
+        t = (-b + sqrt(discriminant)) / (2 * a);
+        if (t >= minDistance && t <= maxDistance)
+        {
+            raycastHit.distance = t;
+            raycastHit.point = ray.At(t);
+            raycastHit.normal = glm::normalize(raycastHit.point - m_center);
+            raycastHit.material = GetMaterial();
+            return true;
+        }
+    }
+
+    return false;
 }

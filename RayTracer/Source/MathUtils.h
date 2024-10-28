@@ -1,6 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#define FLT_EPSILON 1.192092896e-07F 
+
 template<typename T>
 inline T Lerp(const T& a, const T& b, float t)
 {
@@ -23,6 +25,22 @@ inline glm::vec3 Cross(const glm::vec3& v1, const glm::vec3& v2)
 	result.z = (v1.x * v2.y) - (v1.y * v2.x);
 
 	return result;
+}
+
+inline float Dot(const glm::vec3& v1, const glm::vec3& v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+inline glm::vec3 Reflect(const glm::vec3& v, const glm::vec3& n)
+{
+	//float r = v - (n * dot(n, v)) * 2.0f;
+}
+
+inline bool Approximately(float value1, float value2)
+{
+	// check if the difference between the values is less than epsilon
+	return (std::fabs(value1 - value2) < FLT_EPSILON);
 }
 
 inline void QuadraticPoint(int x1, int y1, int x2, int y2, int x3, int y3, float t, int& x, int& y)
