@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     Framebuffer framebuffer(renderer, 1000, 800);
 
     Camera camera{70.0f, framebuffer.m_width / (float)framebuffer.m_height};
-    camera.SetView({ 0, 0, -50 }, { 0,0,0 });
+    camera.SetView({ 0, 0, -50}, { 0,0,0 });
 
     Scene scene;
 
@@ -45,26 +45,31 @@ int main(int argc, char* argv[])
     std::shared_ptr<Material> blue  = std::make_shared<Lambertian>(color3_t{ 0, 0, 1 });
     std::shared_ptr<Material> green  = std::make_shared<Lambertian>(color3_t{ 0, 1, 0 });
     std::shared_ptr<Material> purple  = std::make_shared<Lambertian>(color3_t{ 1, 0, 1 });
+    std::shared_ptr<Material> redMetal  = std::make_shared<Metal>(color3_t{ 1, 0, 0 }, 0);
 
-    std::array<std::shared_ptr<Material>, 5> material = {gray, red, blue, green, purple};
+    std::array<std::shared_ptr<Material>, 6> materials = {gray, red, blue, green, purple, redMetal};
+    std::array<std::shared_ptr<Material>, 2> metalMaterials = {purple, redMetal};
 
-   // std::shared_ptr<Material> material = std::make_shared<Material>(color3_t{ 1, 0, 0 });
-    /*auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 5, 0 }, 10.0f, red);
+    auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 5, 0 }, 10.0f, redMetal);
 
-    scene.AddObject(std::move(sphere));*/
+    scene.AddObject(std::move(sphere));
 
     //std::shared_ptr<Material> material2 = std::make_shared<Material>(color3_t{ 0, 0, 1 });
     auto plane = std::make_unique<Plane>(glm::vec3{ 0, -5, 0 }, glm::vec3{ 0, 1, 0 }, gray);
     scene.AddObject(std::move(plane));
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 10; i++)
     {
-        int matnum = random(5);
-        auto sphere = std::make_unique<Sphere>(random(glm::vec3(-30, -5, -30), glm::vec3(30)), randomf(1, 5), material[matnum]);
+        int matnum = random(2);
+        auto sphere = std::make_unique<Sphere>(random(glm::vec3(-30, -5, -30), glm::vec3(30)), randomf(1, 5), metalMaterials[matnum]);
         //auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 0, 0 }, 2.0f, red);
         scene.AddObject(std::move(sphere));
     }
     
+    framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
+
+    scene.Render(framebuffer, camera, 1);
+
     bool quit = false;
 
     while (!quit)
@@ -86,9 +91,9 @@ int main(int argc, char* argv[])
 
         
         // --- Start Frame ---
-        framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
+        /*framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
 
-        scene.Render(framebuffer, camera);
+        scene.Render(framebuffer, camera, 1);*/
 
         framebuffer.Update();
         // --- End Frame ---

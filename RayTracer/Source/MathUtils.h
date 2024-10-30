@@ -32,9 +32,12 @@ inline float Dot(const glm::vec3& v1, const glm::vec3& v2)
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-inline glm::vec3 Reflect(const glm::vec3& v, const glm::vec3& n)
+inline glm::vec3 Reflect(const glm::vec3& i, const glm::vec3& n)
 {
-	//float r = v - (n * dot(n, v)) * 2.0f;
+	//I - 2.0 * dot(N, I) * N.
+	//glm::vec3 result = v - 2.0f * dot(glm::normalize(n), v) * glm::normalize(n);
+	return (i - (n * dot(n, i)) * 2.0f);
+	//return result;
 }
 
 inline bool Approximately(float value1, float value2)

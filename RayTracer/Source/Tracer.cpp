@@ -26,7 +26,7 @@ color3_t Tracer::Trace(Scene& scene, const ray_t& ray, float minDistance, float 
 		ray_t scatter;
 		if (raycastHit.material.lock()->Scatter(ray, raycastHit, attenuation, scatter))
 		{
-			return attenuation *  Trace(scene, scatter, minDistance, maxDistance);
+			return attenuation * Trace(scene, scatter, minDistance, maxDistance);
 		}
 		//return raycastHit.material.lock()->GetColor();
 	}
