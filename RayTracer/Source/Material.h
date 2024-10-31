@@ -12,6 +12,8 @@ public:
 
 	color3_t& GetColor() { return m_albedo; }
 
+	virtual color3_t GetEmissive() const { return color3_t{ 0 }; }
+
 protected:
 
 	color3_t m_albedo;
@@ -35,7 +37,29 @@ protected:
 	float m_fuzz = 0;
 };
 
-//class Emissive :public Material
-//{
-//	//Emissive(const color3_t& albedo)
-//};
+class Dielectric : public Material
+{
+public:
+	Dielectric(const glm::vec3& albedo, float refractiveIndex) : Material{ albedo }, m_refractiveIndex{ refractiveIndex } {}
+	bool Scatter(const ray_t& ray, const raycastHit_t& raycasHit, color3_t& attenuation, ray_t& scatter) override;
+
+protected:
+	float m_refractiveIndex = 0;
+};
+
+class Emissive :public Material
+{
+public:
+	Emissive(const color3_t& albedo, float intensity = 1) : Material{ albedo }, m_intensity{ intensity } {}
+
+	bool Scatter(const ray_t& ray, const raycastHit_t& raycasHit, color3_t& attenuation, ray_t& scatter) override {
+		return false;
+	}
+
+	color3_t GetEmissive() const override {
+		return m_albedo * m_intensity;
+	}
+
+private:
+	float m_intensity{ 1 };
+};

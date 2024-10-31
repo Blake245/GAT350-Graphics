@@ -5,7 +5,7 @@
 #include "Random.h"
 #include <iostream>
 
-void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSamples)
+void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSamples, int depth)
 {
 	for (int y = 0; y < framebuffer.m_height; y++)
 	{
@@ -21,11 +21,12 @@ void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSample
 
 				ray_t ray = camera.GetRay(point);
 
-				color = Tracer::Trace(*this, ray, 0.001f, 100.0f);
-				//color4_t color = { 0.5f, 0, 0, 1 };
-
+				color += Tracer::Trace(*this, ray, 0.001f, 100.0f, depth);
 			}
 			// average color
+			color.r /= numSamples;
+			color.g /= numSamples;
+			color.b /= numSamples;
 			framebuffer.DrawPoint(x, y, ColorConvert(color));
 		}
 		std::cout << "y: " << y << std::endl;
