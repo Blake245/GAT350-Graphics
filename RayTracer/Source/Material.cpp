@@ -37,14 +37,15 @@ bool Dielectric::Scatter(const ray_t& ray, const raycastHit_t& raycasHit, color3
     {
         outNormal = raycasHit.normal;
         ni_over_nt = 1.0f / m_refractiveIndex;
-        cosine = -glm::dot(ray.direction, raycasHit.normal) / ray.direction.length();
+        cosine = -glm::dot(ray.direction, raycasHit.normal) / glm::length(ray.direction);
     }
     else
     {
         // hitting from inside
+        //outNormal = -raycasHit.normal;
         outNormal = -raycasHit.normal;
         ni_over_nt = m_refractiveIndex;
-        cosine = m_refractiveIndex * glm::dot(ray.direction, raycasHit.normal) / ray.direction.length();
+        cosine = m_refractiveIndex * glm::dot(ray.direction, raycasHit.normal) / glm::length(ray.direction);
     }
 
     glm::vec3 refracted;

@@ -13,6 +13,8 @@
 #include "Tracer.h"
 #include "Scene.h"
 #include "Plane.h"
+#include "Triangle.h"
+#include "Model.h"
 
 #include <SDL.h>
 #include <iostream>
@@ -35,7 +37,7 @@ int main(int argc, char* argv[])
     Framebuffer framebuffer(renderer, 1000, 800);
 
     Camera camera{70.0f, framebuffer.m_width / (float)framebuffer.m_height};
-    camera.SetView({ 0, 20, -50}, { 0,0,0 });
+    camera.SetView({ 2, 1, -2}, { 0,0,0 });
 
     Scene scene;
 
@@ -55,7 +57,7 @@ int main(int argc, char* argv[])
     
     std::shared_ptr<Material> redLight = std::make_shared<Emissive>(color3_t{ 1, 0, 0 }, 8.0f);
     std::shared_ptr<Material> blueLight = std::make_shared<Emissive>(color3_t{ 0.2f, 0.92f, 0.88f }, 3.0f);
-    std::shared_ptr<Material> yellowLight = std::make_shared<Emissive>(color3_t{ 1, 1, 0 }, 10.0f);
+    std::shared_ptr<Material> yellowLight = std::make_shared<Emissive>(color3_t{ 1, 1, 1 }, 10.0f);
 
     std::array<std::shared_ptr<Material>, 12> materials = {red, blue, green, purple, 
         redMetal, blueMetal, greenMetal, purpleMetal, 
@@ -63,23 +65,32 @@ int main(int argc, char* argv[])
 
     int matnum1 = random(9);
     //auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 5, 0 }, 10.0f, materials[matnum1]);
-    auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 5, 0 }, 10.0f, clear);
-    scene.AddObject(std::move(sphere));
+    /*auto sphere = std::make_unique<Sphere>(glm::vec3{ 5, 10, 0 }, 5.0f, clear);
+    scene.AddObject(std::move(sphere));*/
+
+    //auto triangle = std::make_unique<Triangle>(glm::vec3{ -2, 0, 0 }, glm::vec3{ 0, 2, 0 }, glm::vec3{ 2, 0, 0 }, red); 
+    ////auto triangle = std::make_unique<Triangle>(glm::vec3{ 0, 5, 0 }, glm::vec3{ 5, 5, 0 }, glm::vec3{ 0, 0, 0 }, redMetal); 
+    //scene.AddObject(std::move(triangle));
+
 
     //std::shared_ptr<Material> material2 = std::make_shared<Material>(color3_t{ 0, 0, 1 });
     auto plane = std::make_unique<Plane>(glm::vec3{ 0, -5, 0 }, glm::vec3{ 0, 1, 0 }, gray);
     scene.AddObject(std::move(plane));
 
-    for (int i = 0; i < 7; i++)
+    /*for (int i = 0; i < 10; i++)
     {
         int matnum = random(12);
         auto sphere = std::make_unique<Sphere>(random(glm::vec3(-30, -5, -40), glm::vec3(30)), randomf(1, 7), materials[matnum]);
-        //auto sphere = std::make_unique<Sphere>(glm::vec3{ 0, 0, 0 }, 2.0f, red);
         scene.AddObject(std::move(sphere));
-    }
+    }*/
+
+    //auto model = std::make_unique<Model>(materials[matnum1]);
+    auto model = std::make_unique<Model>(redMetal);
+    model->Load("../Build/Model/cube.obj");
+    scene.AddObject(std::move(model));
     
     //framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
-    scene.Render(framebuffer, camera, 1000, 3);
+    scene.Render(framebuffer, camera, 100, 5);
     framebuffer.Update();
 
     bool quit = false;
