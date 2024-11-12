@@ -24,6 +24,7 @@
 
 void InitScene(Scene& scene);
 void CornellBoxScene(Scene& scene);
+void FinalRender(Scene& scene);
 
 int main(int argc, char* argv[])
 {
@@ -40,16 +41,17 @@ int main(int argc, char* argv[])
     Framebuffer framebuffer(renderer, 1000, 800);
 
     Camera camera{70.0f, framebuffer.m_width / (float)framebuffer.m_height};
-    camera.SetView({ 0, 2, -17}, { 0,0,0 });
+    camera.SetView({ 0, 2, -20}, { 0,0,0 });
 
     Scene scene;
     //InitScene(scene);
-    CornellBoxScene(scene);
+    //CornellBoxScene(scene);
+    FinalRender(scene);
 
     
     //framebuffer.Clear(ColorConvert(color4_t{ 0, 0.25f, 0, 1 }));
     scene.Update();
-    scene.Render(framebuffer, camera, 200, 6);
+    scene.Render(framebuffer, camera, 500, 10);
     framebuffer.Update();
 
     bool quit = false;
@@ -148,7 +150,7 @@ void CornellBoxScene(Scene& scene)
     std::shared_ptr<Material> white = std::make_shared<Lambertian>(color3_t{ 1.0f });
     std::shared_ptr<Material> red = std::make_shared<Lambertian>(color3_t{ 1, 0, 0 });
     std::shared_ptr<Material> green = std::make_shared<Lambertian>(color3_t{ 0, 1, 0 });
-    std::shared_ptr<Material> whiteLight = std::make_shared<Emissive>(color3_t{ 1, 1, 1 }, 3);
+    std::shared_ptr<Material> whiteLight = std::make_shared<Emissive>(color3_t{ 0, 0, 1 }, 10);
 
     // Walls
     auto floor = std::make_unique<Plane>(Transform{ glm::vec3{0, -5, 0} }, white);
@@ -178,4 +180,56 @@ void CornellBoxScene(Scene& scene)
     auto cube = std::make_unique<Model>(Transform{ glm::vec3{-3, -2.5f, 0}, glm::vec3{0, 40, 0}, glm::vec3{5} }, white);
     cube->Load("../Build/Model/cube.obj");
     scene.AddObject(std::move(cube));
+}
+
+void FinalRender(Scene& scene)
+{
+    scene.SetSky(color3_t{ 0.2f }, color3_t{ 0.1f });
+
+    //Materials
+    std::shared_ptr<Material> white = std::make_shared<Lambertian>(color3_t{ 1.0f });
+    std::shared_ptr<Material> red = std::make_shared<Lambertian>(color3_t{ 1, 0, 0 });
+    std::shared_ptr<Material> green = std::make_shared<Lambertian>(color3_t{ 0, 1, 0 });
+    std::shared_ptr<Material> blue = std::make_shared<Lambertian>(color3_t{ 0, 0, 1 });
+    std::shared_ptr<Material> purple = std::make_shared<Lambertian>(color3_t{ 1, 0, 1 });
+
+    std::shared_ptr<Material> purpleLight = std::make_shared<Emissive>(color3_t{ 1, 0, 1 }, 5);
+    std::shared_ptr<Material> clear = std::make_shared<Dielectric>(color3_t{ 1, 1, 1 }, 1.33f);
+
+    std::shared_ptr<Material> redMetal = std::make_shared<Metal>(color3_t{ 1, 0, 0 }, 0);
+    std::shared_ptr<Material> blueMetal = std::make_shared<Metal>(color3_t{ 0, 0, 1 }, 0);
+    std::shared_ptr<Material> greenMetal = std::make_shared<Metal>(color3_t{ 0, 1, 0 }, 0);
+
+    std::array<std::shared_ptr<Material>, 7> materials = { red, blue, green, purple,
+        redMetal, blueMetal, clear};
+
+    //Ground Plane
+
+    auto floor = std::make_unique<Plane>(Transform{ glm::vec3{0, -5, 0} }, white);
+    scene.AddObject(std::move(floor));
+
+    // Cubes
+    auto lcube = std::make_unique<Model>(Transform{ glm::vec3{-15, 0, 10}, glm::vec3{0, 40, 0}, glm::vec3{10} }, redMetal);
+    lcube->Load("../Build/Model/cube.obj");
+    scene.AddObject(std::move(lcube));
+
+    auto mCube = std::make_unique<Model>(Transform{ glm::vec3{0, 0, 15}, glm::vec3{0}, glm::vec3{10} }, greenMetal);
+    mCube->Load("../Build/Model/cube.obj");
+    scene.AddObject(std::move(mCube));
+
+    auto rCube = std::make_unique<Model>(Transform{ glm::vec3{15, 0, 10}, glm::vec3{0, 40, 0}, glm::vec3{10} }, blueMetal);
+    rCube->Load("../Build/Model/cube.obj");
+    scene.AddObject(std::move(rCube));
+
+    // Sphere
+    auto sphere = std::make_unique<Sphere>(Transform{ glm::vec3{ 0, -2, 5 } }, 4.5f, purpleLight);
+    scene.AddObject(std::move(sphere));
+
+    // Random shapes
+
+    for (int i = 0; i < 7; i++)
+    {
+        auto object = std::make_unique<Sphere>(Transform{ glm::vec3{ random(glm::vec3{ -10.0f, -3.5, 0 }, glm::vec3{ 10.0f, -3.5, -10.0 })} }, 1.5f, materials[random(7)]);
+        scene.AddObject(std::move(object));
+    }
 }
