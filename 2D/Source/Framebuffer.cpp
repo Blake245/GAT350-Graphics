@@ -37,7 +37,8 @@ void Framebuffer::Clear(const color_t& color)
 void Framebuffer::DrawPoint(int x, int y, const color_t& color)
 {
 	color_t& dest = m_buffer[x + (y * m_width)];
-	dest = ColorBlend(color, dest);
+	dest = color;
+	//dest = ColorBlend(color, dest);
 }
 
 void Framebuffer::DrawPointClip(int x, int y, const color_t& color)
@@ -45,7 +46,8 @@ void Framebuffer::DrawPointClip(int x, int y, const color_t& color)
 	if (x < 0 || x >= m_width || y < 0 || y >= m_height) return;
 
 	color_t& dest = m_buffer[x + (y * m_width)];
-	dest = AlphaBlend(color, dest);
+	dest = color;
+	//dest = AlphaBlend(color, dest);
 }
 
 void Framebuffer::DrawRect(int x, int y, int w, int h, const color_t& color)
