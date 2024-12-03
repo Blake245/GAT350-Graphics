@@ -52,6 +52,10 @@ int main(int argc, char* argv[])
     VertexShader::uniforms.projection = camera.GetProjection();
     VertexShader::uniforms.ambient = color3_t{ 0.01f };
 
+    VertexShader::uniforms.light.position = glm::vec3{ 10, 10, -10 };
+    VertexShader::uniforms.light.direction = glm::vec3{ 0, -1, 0 }; // light pointing down
+    VertexShader::uniforms.light.color = color3_t{ 1, 0, 0 }; // white light
+
     Shader::framebuffer = &framebuffer;
 
 #pragma region Ocean Scene

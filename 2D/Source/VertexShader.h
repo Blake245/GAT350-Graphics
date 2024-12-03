@@ -1,6 +1,7 @@
 #pragma once
 //#include "Light.h"
 #include "Color.h"
+#include "Light.h"
 #include <array>
 
 struct vertex_t
@@ -33,6 +34,7 @@ public:
 		glm::mat4 projection;
 
 		// lights
+		light_t light;
 		color3_t ambient;
 	};
 
