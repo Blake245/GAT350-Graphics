@@ -6,8 +6,8 @@ Framebuffer* Shader::framebuffer{ nullptr };
 
 void Shader::Draw(const vertexbuffer_t& vb)
 {
-	/*front_face = eFrontFace::CCW;
-	cull_mode = eCullMode::BACK;*/
+	Shader::eFrontFace front_face = Shader::eFrontFace::CCW;
+	Shader::eCullMode cull_mode = Shader::eCullMode::BACK;
 
 	// vertex shader
 	std::vector<vertex_output_t> overtices;
@@ -33,22 +33,24 @@ void Shader::Draw(const vertexbuffer_t& vb)
 		if (!ToScreen(v1, s1)) continue;
 		if (!ToScreen(v2, s2)) continue;
 		
-		//float z = cross(s1 - s0, s2 - s0);
+		float z = cross(s1 - s0, s2 - s0);
 
-		/*switch (cull_mode)
+		switch (cull_mode)
 		{
-		case FRONT:
-
+		case Shader::FRONT:
+			if (front_face == CCW && z > 0) continue;
+			if (front_face == CW && z < 0) continue;
 			break;
-		case BACK:
-			if (z < 0) continue;
+		case Shader::BACK:
+			if (front_face == CCW && z < 0) continue;
+			if (front_face == CW && z > 0) continue;
 			break;
-		case NONE:
-
+		case Shader::NONE:
+			//
 			break;
 		default:
 			break;
-		}*/
+		}
 
 		// rasterization
 		Rasterizer::Triangle(*framebuffer, s0, s1, s2, v0, v1, v2);

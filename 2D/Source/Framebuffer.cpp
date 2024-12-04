@@ -17,6 +17,8 @@ Framebuffer::Framebuffer(const Renderer& renderer, int width, int height)
 		std::cerr << "Error Creating Texture: " << SDL_GetError() << std::endl;
 	}
 	m_buffer.resize(m_width * m_height);
+
+	GetDepth().resize(m_width * m_height);
 }
 
 Framebuffer::~Framebuffer()
@@ -32,6 +34,7 @@ void Framebuffer::Update()
 void Framebuffer::Clear(const color_t& color)
 {
 	std::fill(m_buffer.begin(), m_buffer.end(), color);
+	std::fill(GetDepth().begin(), GetDepth().end(), std::numeric_limits<float>().max());
 }
 
 void Framebuffer::DrawPoint(int x, int y, const color_t& color)

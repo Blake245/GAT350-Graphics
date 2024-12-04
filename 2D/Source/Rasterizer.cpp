@@ -29,7 +29,7 @@ namespace Rasterizer
 				float area = cross(p1 - p0, p2 - p0);
 				// the sign tells us triangle winding (clockwise/counterclockwise)
 				//if (std::abs(area) < std::numeric_limits<float>::epsilon()) return;
-				if (area <= 0) return;
+				//if (area <= 0) return;
 
 				// area of subtriangles divided by total area
 				float w0 = cross(p1 - p, p2 - p) / area;	// area of subtriangle opposite to v0
@@ -40,6 +40,13 @@ namespace Rasterizer
 				{
 					// interpolate vertex attributes
 					color3_t color = w0 * v0.color + w1 * v1.color + w2 * v2.color;
+					float z = w0 * v0.position.z + w1 * v1.position.z + w2 * v2.position.z;
+
+					if (CheckDepth(framebuffer, p, z))
+					{
+						WriteDepth(framebuffer, p, z);
+					}
+					else continue;
 					
 					// create fragment shader input
 					fragment_input_t fragment;
@@ -51,6 +58,17 @@ namespace Rasterizer
 				}
 			}
 		}
+	}
+
+	bool CheckDepth(Framebuffer& framebuffer, const glm::vec2& position, float z)
+	{
+		//return (z < framebuffer.GetDepth()[<get index using position.x, position.y and the framebuffer width>]);
+		return (z < framebuffer.GetDepth()[position.y * framebuffer.m_width + position.x]);
+	}
+
+	void WriteDepth(Framebuffer& framebuffer, const glm::vec2& position, float z)
+	{
+		framebuffer.GetDepth()[position.y * framebuffer.m_width + position.x] = z;
 	}
 
 }

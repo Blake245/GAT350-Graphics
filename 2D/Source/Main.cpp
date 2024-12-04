@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
     VertexShader::uniforms.light.position = glm::vec3{ 10, 10, -10 };
     VertexShader::uniforms.light.direction = glm::vec3{ 0, -1, 0 }; // light pointing down
-    VertexShader::uniforms.light.color = color3_t{ 1, 0, 0 }; // white light
+    VertexShader::uniforms.light.color = color3_t{ 0.7 }; // white light
 
     Shader::framebuffer = &framebuffer;
 
@@ -105,13 +105,13 @@ int main(int argc, char* argv[])
 
 
     std::shared_ptr<Model> model = std::make_shared<Model>();
-    model->Load("../Build/Model/sphere.obj");
+    model->Load("../Build/Model/ogre.obj");
     model->SetColor({ 0, 0, 1, 1 });
 
     std::vector<std::unique_ptr<Actor>> actors;
 
 
-    Transform transform{ glm::vec3{ 0 }, glm::vec3{ 0 }, glm::vec3{ 5 } };
+    Transform transform{ glm::vec3{ 0 }, glm::vec3{ 0, 180, 0 }, glm::vec3{ 5 } };
     std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
     //actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
     actors.push_back(std::move(actor));

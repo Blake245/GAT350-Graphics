@@ -30,13 +30,16 @@ public:
 	void DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, const color_t& color);
 
 	void DrawImage(int x, int y, const class Image& image);
-	
+
+	std::vector<float>& GetDepth() { return m_depth; }
+
 	friend Renderer;
 
 private:
 	int SetRegionCode(int x, int y);
 	void DrawOctants(int xc, int yc, int x, int y, const color_t& color);
 
+	std::vector<float> m_depth;
 public:
 	int m_width{ 0 };
 	int m_height{ 0 };
@@ -49,4 +52,5 @@ public:
 
 	SDL_Texture* m_texture{ nullptr };
 	std::vector<color_t> m_buffer;
+
 };
