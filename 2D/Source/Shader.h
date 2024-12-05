@@ -5,6 +5,22 @@
 
 class Shader
 {
+public:
+	struct uniforms_t
+	{
+		// transformation (mvp)
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
+
+		// lights
+		light_t light;
+		color3_t ambient;
+
+		// material
+		material_t material;
+	};
+
 	enum eFrontFace
 	{
 		CW,
@@ -27,4 +43,6 @@ public:
 
 	static eFrontFace front_face;
 	static eCullMode cull_mode;
+
+	static uniforms_t uniforms;
 };

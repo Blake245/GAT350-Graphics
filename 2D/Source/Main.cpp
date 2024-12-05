@@ -48,13 +48,13 @@ int main(int argc, char* argv[])
     float cameraSpeed = 20.0f;
 
     // shader
-    VertexShader::uniforms.view = camera.GetView();
-    VertexShader::uniforms.projection = camera.GetProjection();
-    VertexShader::uniforms.ambient = color3_t{ 0.01f };
+    Shader::uniforms.view = camera.GetView();
+    Shader::uniforms.projection = camera.GetProjection();
+    Shader::uniforms.ambient = color3_t{ 0.01f };
 
-    VertexShader::uniforms.light.position = glm::vec3{ 10, 10, -10 };
-    VertexShader::uniforms.light.direction = glm::vec3{ 0, -1, 0 }; // light pointing down
-    VertexShader::uniforms.light.color = color3_t{ 0.7 }; // white light
+    Shader::uniforms.light.position = glm::vec3{ 10, 10, -10 };
+    Shader::uniforms.light.direction = glm::vec3{ 0, -1, 0 }; // light pointing down
+    Shader::uniforms.light.color = color3_t{ 1 }; // white light
 
     Shader::framebuffer = &framebuffer;
 
@@ -106,16 +106,31 @@ int main(int argc, char* argv[])
 
     std::shared_ptr<Model> model = std::make_shared<Model>();
     model->Load("../Build/Model/ogre.obj");
-    model->SetColor({ 0, 0, 1, 1 });
+    //model->SetColor({ 0, 0, 1, 1 });
+
+    std::shared_ptr<Model> model2 = std::make_shared<Model>();
+    model2->Load("../Build/Model/ogre.obj");
 
     std::vector<std::unique_ptr<Actor>> actors;
 
+    // materials
+    std::shared_ptr<material_t> material = std::make_shared<material_t>();
+    material->albedo = color3_t{ 0, 0, 1 };
+    material->specular = color3_t{ 0.3 };
+    material->shininess = 16.0f;
 
-    Transform transform{ glm::vec3{ 0 }, glm::vec3{ 0, 180, 0 }, glm::vec3{ 5 } };
-    std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model);
-    //actor->SetColor({ (uint8_t)random(256), (uint8_t)random(256), (uint8_t)random(256), 255 });
+    std::shared_ptr<material_t> red = std::make_shared<material_t>();
+    red->albedo = color3_t{ 1, 0, 0 };
+    red->specular = color3_t{ 1 };
+    red->shininess = 32.0f;
+
+    Transform transform{ glm::vec3{ -5, 0, 0 }, glm::vec3{ 0, 180, 0 }, glm::vec3{ 5 } };
+    std::unique_ptr<Actor> actor = std::make_unique<Actor>(transform, model, material);
     actors.push_back(std::move(actor));
-    
+
+    Transform transform2{ glm::vec3{ 5, 0, 0 }, glm::vec3{ 0, 180, 0 }, glm::vec3{ 5 } };
+    std::unique_ptr<Actor> actor2 = std::make_unique<Actor>(transform2, model2, red);
+    actors.push_back(std::move(actor2));
     
     
     bool quit = false;
@@ -256,10 +271,11 @@ int main(int argc, char* argv[])
         }
 
         camera.SetView(cameraTransform.position, cameraTransform.position + cameraTransform.GetForward());
-        VertexShader::uniforms.view = camera.GetView();
+        Shader::uniforms.view = camera.GetView();
 
         for (auto& actor : actors)
         {
+            //actor->GetTransform().rotation.y += time.GetDeltaTime() * 200;
             actor->Draw();
         }
 

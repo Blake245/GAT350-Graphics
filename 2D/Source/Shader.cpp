@@ -2,6 +2,16 @@
 #include "Framebuffer.h"
 #include "Rasterizer.h"
 
+Shader::uniforms_t Shader::uniforms =
+{
+	glm::mat4(1), // model
+	glm::mat4(1), // view
+	glm::mat4(1), // projection
+	light_t{glm::vec3{1}, glm::vec3{1}, color3_t{1}},
+	color3_t(1),
+	material_t{color3_t{1}, color3_t{1}, 1}
+};
+
 Framebuffer* Shader::framebuffer{ nullptr };
 
 void Shader::Draw(const vertexbuffer_t& vb)
